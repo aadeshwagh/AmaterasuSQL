@@ -1,6 +1,7 @@
 import exception.SyntaxErrorException;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.DescribeStatement;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -42,6 +43,8 @@ public class Main {
                System.out.println(resolveQuery.resolveInsertStatement(query));
            }else if(statement.getClass().equals(Delete.class)){
                System.out.println(resolveQuery.resolveDeleteQuery(query));
+           }else if(statement.getClass().equals(DescribeStatement.class)) {
+               display.describeTable(resolveQuery.resolveDescribeTable(query));
            }
        }catch (Exception e){
            System.out.println(e.getMessage());

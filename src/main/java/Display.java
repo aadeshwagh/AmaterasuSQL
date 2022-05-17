@@ -15,6 +15,27 @@ public class Display {
         }
     }
 
+    public void describeTable( Map<String, String> map ){
+        List<String> cols = map.keySet().stream().toList();
+        List<String> val = map.values().stream().toList();
+        int largestLength = Math.max(Collections.max(map.keySet()).length(),7);
+        List<String> columns = new ArrayList<>();
+        columns.add("Fields");
+        columns.add("Type");
+        printStarDashPattern(columns,largestLength);
+        System.out.println();
+        System.out.println("| Fields" +  " ".repeat(largestLength - 6)+" | " + " Type" +  " ".repeat(largestLength - 6)+" |" );
+        printStarDashPattern(columns,largestLength);
+        System.out.println();
+       for(int i = 0 ; i<map.size();i++){
+               System.out.print("| " + cols.get(i) + " ".repeat(largestLength - cols.get(i).length()) + " | "+ val.get(i) + " ".repeat(largestLength - val.get(i).length())+ "| ");
+               System.out.println();
+
+       }
+       printStarDashPattern(columns,largestLength);
+       System.out.println();
+    }
+
     public void displayData(Table table) {
         List<String> columns = new ArrayList<>(table.getColumns().keySet());
         List<Object[]> data = table.getData();

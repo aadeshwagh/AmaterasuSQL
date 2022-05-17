@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.DescribeStatement;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -19,6 +20,7 @@ import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.statement.update.UpdateSet;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class ResolveQuery {
@@ -26,6 +28,16 @@ public class ResolveQuery {
 
     ResolveQuery() {
         this.storageEngine = new StorageEngine();
+    }
+
+    public Map<String , String> resolveDescribeTable(String query){
+     Map<String,String> map = new HashMap<>();
+     String tableName =  query.split(" ")[1].replace(";","").trim();
+     Table table = storageEngine.getTable(tableName);
+    for(String col : table.getColumns().keySet()){
+        map.put(col, table.getColumns().get(col).name());
+    }
+    return map;
     }
 
     public Table resolveSelectStatement(String query) {
