@@ -21,7 +21,8 @@ public class StorageEngine {
     public void saveTable(Table table){
         try {
             deleteTable(table);
-            bw = new BufferedWriter(new FileWriter(table.getTableName()+".txt",true));
+            File file = new File(table.getTableName()+".txt");
+            bw = new BufferedWriter(new FileWriter(file,true));
             int i = 0;
             for(String cName: table.getColumns().keySet()){
                 if(i == table.getColumns().size()-1){
@@ -155,6 +156,9 @@ public class StorageEngine {
         return null;
     }
     public Table getRows(Table table , String []column,String conditionColumn , Object ConditionValue ){
+        if(table.getData().size()==0){
+            return table;
+        }
         if(column.length==1 && column[0].equals("*")){
             if(conditionColumn != null && ConditionValue!=null){
                 int index = table.getColumns().keySet().stream().toList().indexOf(conditionColumn);
@@ -202,10 +206,15 @@ public class StorageEngine {
 
     }
     public void deleteRows(Table table , String column , Object value){
-        int index = table.getColumns().keySet().stream().toList().indexOf(column);
         List<Object[]> data = table.getData();
-        data.removeAll(table.getData().stream().filter(object -> (object[index].equals(value))).toList());
-        table.setData(data);
+        if(column==null && value==null){
+            data.clear();
+            table.setData(data);
+        }else{
+            int index = table.getColumns().keySet().stream().toList().indexOf(column);
+            data.removeAll(table.getData().stream().filter(object -> (object[index].equals(value))).toList());
+            table.setData(data);
+        }
         saveTable(table);
 
     }

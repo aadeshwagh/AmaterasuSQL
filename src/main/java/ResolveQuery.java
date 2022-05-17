@@ -10,6 +10,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -222,5 +223,33 @@ public class ResolveQuery {
 
         return "inserted successfully";
 
+    }
+    public String resolveDeleteQuery(String query){
+        Statement statement = null;
+        try {
+            statement = CCJSqlParserUtil.parse(query);
+        } catch (JSQLParserException e) {
+            throw new SyntaxErrorException(e.getMessage());
+        }
+        Delete deleteStatement = (Delete) statement;
+        Table table = storageEngine.getTable(deleteStatement.getTable().getName());
+        if (deleteStatement.getWhere() == null) {
+            storageEngine.deleteRows(table,null, null);
+        } else {
+
+            String column = deleteStatement.getWhere().toString().split("=")[0].trim();
+            if (!table.getColumns().containsKey(column)) {
+                throw new ColumnNotFoundException("no Column with name " + column + " is present in " + table.getTableName());
+            }
+            String val = (deleteStatement.getWhere().toString().split("=")[1].trim());
+            try {
+                int i = Integer.parseInt(val);
+                storageEngine.deleteRows(table, column, i);
+            } catch (NumberFormatException nfe) {
+                storageEngine.deleteRows(table,column, val);
+            }
+
+        }
+        return "deleted successfully";
     }
 }
