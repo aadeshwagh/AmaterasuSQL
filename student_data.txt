@@ -1,5 +1,0 @@
-name,marks,age
-VARCHAR,INT,INT
-aadesh,77,54
-aadesh,77,10
-aadesh,77,10

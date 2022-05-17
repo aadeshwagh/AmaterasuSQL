@@ -4,6 +4,7 @@ import exception.InvalidInputException;
 import exception.SyntaxErrorException;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
@@ -21,11 +22,12 @@ import java.util.*;
 
 public class ResolveQuery {
     StorageEngine storageEngine;
-    ResolveQuery(){
+
+    ResolveQuery() {
         this.storageEngine = new StorageEngine();
     }
 
-    public Table resolveSelectStatement(String query)  {
+    public Table resolveSelectStatement(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -33,32 +35,32 @@ public class ResolveQuery {
             throw new SyntaxErrorException("Unexpected token in query");
         }
         Select selectStatement = (Select) statement;
-        PlainSelect pl = (PlainSelect)selectStatement.getSelectBody();
+        PlainSelect pl = (PlainSelect) selectStatement.getSelectBody();
 
         Table table = storageEngine.getTable(pl.getFromItem().toString());
         String[] items = new String[pl.getSelectItems().size()];
-        for (int i = 0 ; i<pl.getSelectItems().size();i++) {
-            String name =pl.getSelectItems().get(i).toString();
-            if(!name.equals("*") && !table.getColumns().containsKey(name)){
-                throw new ColumnNotFoundException("no Column with name "+ name+" is present in "+table.getTableName());
+        for (int i = 0; i < pl.getSelectItems().size(); i++) {
+            String name = pl.getSelectItems().get(i).toString();
+            if (!name.equals("*") && !table.getColumns().containsKey(name)) {
+                throw new ColumnNotFoundException("no Column with name " + name + " is present in " + table.getTableName());
             }
             items[i] = name;
         }
 
-        if(pl.getWhere()==null){
-            return storageEngine.getRows(table,items,null,null);
-        }else{
+        if (pl.getWhere() == null) {
+            return storageEngine.getRows(table, items, null, null);
+        } else {
 
             String column = pl.getWhere().toString().split("=")[0].trim();
-            if(!table.getColumns().containsKey(column)){
-                throw new ColumnNotFoundException("no Column with name "+ column+" is present in "+table.getTableName());
+            if (!table.getColumns().containsKey(column)) {
+                throw new ColumnNotFoundException("no Column with name " + column + " is present in " + table.getTableName());
             }
             String val = (pl.getWhere().toString().split("=")[1].trim());
             try {
                 int i = Integer.parseInt(val);
-                table = storageEngine.getRows(table,items,column,i);
+                table = storageEngine.getRows(table, items, column, i);
             } catch (NumberFormatException nfe) {
-                table = storageEngine.getRows(table,items,column,val);
+                table = storageEngine.getRows(table, items, column, val);
             }
 
         }
@@ -66,7 +68,8 @@ public class ResolveQuery {
 
 
     }
-    public String resolveDropStatement(String query){
+
+    public String resolveDropStatement(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -78,9 +81,10 @@ public class ResolveQuery {
         Table table = storageEngine.getTable(tableName);
         storageEngine.deleteTable(table);
 
-        return "table "+tableName+" deleted Successfully";
+        return "table " + tableName + " deleted Successfully";
     }
-    public String resolveCreateStatement(String query){
+
+    public String resolveCreateStatement(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -89,12 +93,12 @@ public class ResolveQuery {
         }
         CreateTable createStatement = (CreateTable) statement;
         Map<String, Enum<DataType>> map = new HashMap<>();
-       List<String> dataType= Arrays.stream(DataType.values()).map(Enum::toString).toList();
-        for(ColumnDefinition cd : createStatement.getColumnDefinitions()){
-             if(!dataType.contains(cd.getColDataType().getDataType())){
-                 throw new InvalidDataTypeException("Only INT and VARCHAR data types are valid");
-             }
-            map.put(cd.getColumnName(),DataType.valueOf(cd.getColDataType().getDataType()));
+        List<String> dataType = Arrays.stream(DataType.values()).map(Enum::toString).toList();
+        for (ColumnDefinition cd : createStatement.getColumnDefinitions()) {
+            if (!dataType.contains(cd.getColDataType().getDataType())) {
+                throw new InvalidDataTypeException("Only INT and VARCHAR data types are valid");
+            }
+            map.put(cd.getColumnName(), DataType.valueOf(cd.getColDataType().getDataType()));
         }
         Table table = new Table();
         table.setTableName(createStatement.getTable().getName());
@@ -104,7 +108,8 @@ public class ResolveQuery {
 
         return "Table successfully created";
     }
-    public String resolveUpdateStatement(String query){
+
+    public String resolveUpdateStatement(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -114,9 +119,9 @@ public class ResolveQuery {
         Update updateStatement = (Update) statement;
         String tableName = updateStatement.getTable().getName();
         List<Column> colNames = new ArrayList<>();
-        List<Expression> values =  new ArrayList<>();
+        List<Expression> values = new ArrayList<>();
         ArrayList<UpdateSet> updateSets = updateStatement.getUpdateSets();
-        for(UpdateSet set : updateSets){
+        for (UpdateSet set : updateSets) {
             colNames.add(set.getColumns().get(0));
             values.add(set.getExpressions().get(0));
         }
@@ -124,20 +129,20 @@ public class ResolveQuery {
 
         String[] cols = new String[colNames.size()];
         Object[] val = new Object[colNames.size()];
-        for(int i = 0 ; i<colNames.size();i++){
+        for (int i = 0; i < colNames.size(); i++) {
             cols[i] = colNames.get(i).getColumnName();
-            if(!table.getColumns().containsKey(cols[i])){
-                throw new ColumnNotFoundException("column with name "+cols[i]+" does not exists");
+            if (!table.getColumns().containsKey(cols[i])) {
+                throw new ColumnNotFoundException("column with name " + cols[i] + " does not exists");
             }
             String value = values.get(i).toString();
-            if(table.getColumns().get(cols[i]).equals(DataType.INT)){
+            if (table.getColumns().get(cols[i]).equals(DataType.INT)) {
                 try {
                     int j = Integer.parseInt(value);
-                    val[i]=j;
+                    val[i] = j;
                 } catch (NumberFormatException nfe) {
                     throw new InvalidInputException("integer excepted string given");
                 }
-            }else{
+            } else {
                 val[i] = value;
             }
 
@@ -145,26 +150,26 @@ public class ResolveQuery {
         }
 
 
-
-        if(updateStatement.getWhere() != null){
+        if (updateStatement.getWhere() != null) {
             String conditionColumn = updateStatement.getWhere().toString().split("=")[0].trim();
             String conditionValue = (updateStatement.getWhere().toString().split("=")[1].trim());
             try {
                 int i = Integer.parseInt(conditionValue);
-                storageEngine.updateRows(table,cols,val,conditionColumn,i);
+                storageEngine.updateRows(table, cols, val, conditionColumn, i);
             } catch (NumberFormatException nfe) {
-                storageEngine.updateRows(table,cols,val,conditionColumn,conditionValue);
+                storageEngine.updateRows(table, cols, val, conditionColumn, conditionValue);
             }
-        }else{
+        } else {
 
-            storageEngine.updateRows(table,cols,val,null,null);
+            storageEngine.updateRows(table, cols, val, null, null);
 
         }
 
 
         return "update successful";
     }
-    public String resolveInsertStatement(String query){
+
+    public String resolveInsertStatement(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -173,11 +178,49 @@ public class ResolveQuery {
         }
         Insert insertStatement = (Insert) statement;
         List<Column> columns = insertStatement.getColumns();
-        List<Expression> setExpressionList = insertStatement.getSetExpressionList();
-       for(int i=0 ; i<columns.size();i++){
-           System.out.println(columns.get(i).toString()+" = "+setExpressionList.get(i).toString());
-       }
-        return "b";
-    }
+        ItemsList itemsList = insertStatement.getItemsList();
+        String temp = itemsList.toString().replace("(","");
+        String item = temp.replace(")","");
+        List<String> values = new ArrayList<>(Arrays.asList(item.split(",")));
 
+
+        if (columns.size() != values.size()  ) {
+            throw new ColumnNotFoundException("number of values and columns should match");
+        }
+
+        Object[] val = new Object[values.size()];
+        String[] cols = new String[columns.size()];
+        String tableName = insertStatement.getTable().getName();
+        Table table = storageEngine.getTable(tableName);
+        for (int i = 0; i < columns.size(); i++) {
+            cols[i] = columns.get(i).getColumnName();
+            if (!table.getColumns().containsKey(cols[i])) {
+                throw new ColumnNotFoundException("column with name " + cols[i] + " does not exists");
+            }
+            String value = values.get(i).trim();
+            if (table.getColumns().get(cols[i]).equals(DataType.INT)) {
+                try {
+                    int j = Integer.parseInt(value);
+                    val[i] = j;
+                } catch (NumberFormatException nfe) {
+                    throw new InvalidInputException("integer excepted string given");
+                }
+            } else {
+                val[i] = value;
+            }
+
+
+        }
+        List<String> originalColumns = table.getColumns().keySet().stream().toList();
+        Object[] finalValues = new Object[table.getColumns().size()];
+        for(int i = 0 ; i< cols.length;i++){
+            finalValues[originalColumns.indexOf(cols[i])] = val[i];
+
+        }
+
+        storageEngine.insertRow(table,finalValues);
+
+        return "inserted successfully";
+
+    }
 }

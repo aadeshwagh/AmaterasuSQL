@@ -50,9 +50,18 @@ public class StorageEngine {
                     int j = 0;
                     for(Object obj1 : obj){
                         if(j == obj.length -1){
-                            bw.write(obj1.toString());
+                            if(obj1==null){
+                                bw.write("null");
+                            }else{
+                                bw.write(obj1.toString());
+                            }
+
                         }else{
-                            bw.write(obj1.toString()+",");
+                            if(obj1==null){
+                                bw.write("null"+",");
+                            }else{
+                                bw.write(obj1.toString()+",");
+                            }
                             j++;
                         }
 
@@ -69,6 +78,7 @@ public class StorageEngine {
     public void insertRow(Table table , Object[] list){
         List<Object[]> data = table.getData();
         data.add(list);
+        table.setData(data);
         saveTable(table);
 
     }
@@ -117,11 +127,16 @@ public class StorageEngine {
             for(String [] str: tempData){
                 Object[] obj = new Object[str.length];
                 for(int i = 0 ;i< str.length ;i++){
-                    if(map.get(cNames.get(i)).equals(DataType.INT)){
-                        obj[i] = Integer.parseInt(str[i]);
+                    if(str[i].equals("null")){
+                        obj[i] = null;
                     }else{
-                        obj[i] = str[i];
+                        if(map.get(cNames.get(i)).equals(DataType.INT)){
+                            obj[i] = Integer.parseInt(str[i]);
+                        }else{
+                            obj[i] = str[i];
+                        }
                     }
+
                 }
                 data.add(obj);
             }

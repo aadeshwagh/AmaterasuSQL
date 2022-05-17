@@ -24,7 +24,12 @@ public class Display {
         int largestLength = 0;
         for(Object[] objs : data){
             for(Object o : objs){
-                largestLength =Math.max(largestLength,o.toString().length());
+                if(o==null){
+                    largestLength = Math.max(largestLength,4);
+                }else{
+                    largestLength =Math.max(largestLength,o.toString().length());
+                }
+
             }
         }
         printStarDashPattern(columns,largestLength);
@@ -50,6 +55,12 @@ public class Display {
                         System.out.print("| "+o[i] +" ".repeat(largestLength-o[i].toString().length())+" | ");
                     }else{
                         System.out.print(o[i] +" ".repeat(largestLength-o[i].toString().length())+"| ");
+                    }
+                }else{
+                    if(i==0 ){
+                        System.out.print("| "+" ".repeat(largestLength)+" | ");
+                    }else{
+                        System.out.print(" ".repeat(largestLength)+"| ");
                     }
                 }
 

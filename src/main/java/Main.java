@@ -4,6 +4,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 
@@ -36,6 +37,8 @@ public class Main {
            }
            else if(statement.getClass().equals(Drop.class)){
                System.out.println(resolveQuery.resolveDropStatement(query));
+           } else if(statement.getClass().equals(Insert.class)){
+               System.out.println(resolveQuery.resolveInsertStatement(query));
            }
        }catch (Exception e){
            System.out.println(e.getMessage());
