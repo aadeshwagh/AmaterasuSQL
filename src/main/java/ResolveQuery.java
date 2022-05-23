@@ -93,6 +93,8 @@ public class ResolveQuery {
         String tableName = dropStatement.getName().getName();
         Table table = storageEngine.getTable(tableName);
         storageEngine.deleteTable(table);
+        Map<String ,Schema> schema = storageEngine.getSchema();
+        storageEngine.deleteSchema(tableName,schema);
 
         return "table " + tableName + " deleted Successfully";
     }
@@ -117,6 +119,13 @@ public class ResolveQuery {
         table.setTableName(createStatement.getTable().getName());
         table.setColumns(map);
         storageEngine.createTable(table);
+
+        Map<String,Schema> schema = storageEngine.getSchema();
+        Schema obj = new Schema();
+        obj.setColumns(map.keySet().stream().toList());
+        obj.setDataTypes(dataType);
+        schema.put(table.getTableName(),obj);
+        storageEngine.saveSchemaFile(schema);
 
 
         return "Table successfully created";

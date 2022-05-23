@@ -92,6 +92,14 @@ public class StorageEngine {
 
 
     }
+    public void deleteSchemaFile(){
+        File f = new File("schema.txt");
+        if(f.exists()){
+            f.delete();
+        }
+
+
+    }
     public Table getTable(String tableName){
         File file = new File(tableName+".txt");
         if(!file.exists()){
@@ -243,6 +251,89 @@ public class StorageEngine {
         }
         table.setData(originalData);
         saveTable(table);
+    }
+    public void saveSchemaFile(Map<String,Schema> map){
+        try {
+            deleteSchemaFile();
+            bw = new BufferedWriter(new FileWriter("schema.txt", true));
+            for(String tableName : map.keySet()){
+                bw.write(tableName);
+                bw.newLine();
+                int i = 0;
+                for(String cName: map.get(tableName).getColumns()){
+                    if(i == map.get(tableName).getColumns().size()-1){
+                        bw.write(cName);
+                    }else{
+                        bw.write(cName+",");
+                        i++;
+                    }
+
+                }
+                bw.newLine();
+                int k=0;
+                for(String type: map.get(tableName).getDataTypes()){
+                    if(k == map.get(tableName).getDataTypes().size()-1){
+                        bw.write(type);
+                    }else{
+                        bw.write(type+",");
+                        k++;
+                    }
+
+                }
+
+                bw.newLine();
+            }
+
+            bw.flush();
+            bw.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+    public Map<String,Schema> getSchema(){
+        Map<String ,Schema> map = new HashMap<>();
+        File file = new File("schema.txt");
+        if(!file.exists()){
+            throw new TableNotFoundException("schema.txt file Does not Exist");
+        }
+        try {
+            br = new BufferedReader(new FileReader(file));
+            List<String> fileLines = br.lines().toList();
+            List<String> lines = new ArrayList<>();
+            for(String s : fileLines){
+                if(!s.isBlank()){
+                    lines.add(s);
+                }
+            }
+            if(lines.size() > 0) {
+                for (int i = 0; i < lines.size() - 2; i += 3) {
+                    Schema o = new Schema();
+                    String name = lines.get(i);
+                    List<String> cNames = new ArrayList<>(Arrays.stream(lines.get(i + 1).split(",")).toList());
+                    o.setColumns(cNames);
+                    List<String> types = new ArrayList<>(Arrays.stream(lines.get(i + 2).split(",")).toList());
+                    o.setDataTypes(types);
+                    map.put(name,o);
+
+                }
+            }
+
+            br.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return map;
+
+    }
+
+    public void deleteSchema(String tableName , Map<String, Schema> map){
+       map.remove(tableName);
+       saveSchemaFile(map);
+
     }
 //    public void updateTableColumns(Table table , Map<String,Object> values){
 //
