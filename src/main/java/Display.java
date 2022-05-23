@@ -1,19 +1,18 @@
 import java.io.*;
 import java.util.*;
 
-
 public class Display {
-    public void printStarDashPattern(List<String> columns , int largestLength){
-        if(columns.size()==1){
-            System.out.print("+" + "-".repeat(largestLength+2)+"+");
-        }else{
-            for (int i = 0 ; i<columns.size();i++) {
-                if(i==0){
-                    System.out.print("+" + "-".repeat(largestLength+2));
-                }else if(i<columns.size()-1){
-                    System.out.print("+" + "-".repeat(largestLength+1));
-                }else{
-                    System.out.print("+" + "-".repeat(largestLength+1)+"+");
+    public void printStarDashPattern(List<String> columns, int largestLength) {
+        if (columns.size() == 1) {
+            System.out.print("+" + "-".repeat(largestLength + 2) + "+");
+        } else {
+            for (int i = 0; i < columns.size(); i++) {
+                if (i == 0) {
+                    System.out.print("+" + "-".repeat(largestLength + 2));
+                } else if (i < columns.size() - 1) {
+                    System.out.print("+" + "-".repeat(largestLength + 1));
+                } else {
+                    System.out.print("+" + "-".repeat(largestLength + 1) + "+");
                 }
 
             }
@@ -21,35 +20,37 @@ public class Display {
 
     }
 
-    public void describeTable( Map<String, String> map ){
+    public void describeTable(Map<String, String> map) {
         List<String> cols = map.keySet().stream().toList();
         List<String> val = map.values().stream().toList();
-        int largestLength = Math.max(Collections.max(map.keySet()).length(),7);
+        int largestLength = Math.max(Collections.max(map.keySet()).length(), 7);
         List<String> columns = new ArrayList<>();
         columns.add("Fields");
         columns.add("Type");
-        printStarDashPattern(columns,largestLength);
+        printStarDashPattern(columns, largestLength);
         System.out.println();
-        System.out.println("| Fields" +  " ".repeat(largestLength - 6)+" | " + " Type" +  " ".repeat(largestLength - 6)+" |" );
-        printStarDashPattern(columns,largestLength);
+        System.out.println(
+                "| Fields" + " ".repeat(largestLength - 6) + " | " + " Type" + " ".repeat(largestLength - 6) + " |");
+        printStarDashPattern(columns, largestLength);
         System.out.println();
-       for(int i = 0 ; i<map.size();i++){
-               System.out.print("| " + cols.get(i) + " ".repeat(largestLength - cols.get(i).length()) + " | "+ val.get(i) + " ".repeat(largestLength - val.get(i).length())+ "| ");
-               System.out.println();
+        for (int i = 0; i < map.size(); i++) {
+            System.out.print("| " + cols.get(i) + " ".repeat(largestLength - cols.get(i).length()) + " | " + val.get(i)
+                    + " ".repeat(largestLength - val.get(i).length()) + "| ");
+            System.out.println();
 
-       }
-       printStarDashPattern(columns,largestLength);
-       System.out.println();
+        }
+        printStarDashPattern(columns, largestLength);
+        System.out.println();
     }
 
     public void displayData(Table table) {
         List<String> columns = new ArrayList<>(table.getColumns().keySet());
         List<Object[]> data = table.getData();
         int largestLength = Integer.MIN_VALUE;
-        for(String str : columns){
-            largestLength = Math.max(str.length(),largestLength);
+        for (String str : columns) {
+            largestLength = Math.max(str.length(), largestLength);
         }
-        if (data.size()>0) {
+        if (data.size() > 0) {
             for (Object[] objs : data) {
                 for (Object o : objs) {
                     if (o == null) {
@@ -81,7 +82,8 @@ public class Display {
                 for (int i = 0; i < o.length; i++) {
                     if (o[i] != null) {
                         if (i == 0) {
-                            System.out.print("| " + o[i] + " ".repeat(largestLength - o[i].toString().length()) + " | ");
+                            System.out
+                                    .print("| " + o[i] + " ".repeat(largestLength - o[i].toString().length()) + " | ");
                         } else {
                             System.out.print(o[i] + " ".repeat(largestLength - o[i].toString().length()) + "|");
                         }
@@ -92,9 +94,9 @@ public class Display {
                             }
                         } else {
                             if (i == 0) {
-                                System.out.print("| " + " ".repeat(largestLength) + " | ");
-                            } else if (i < columns.size() - 1) {
-                                System.out.print(" ".repeat(largestLength) + " |");
+                                System.out.print("| " + " ".repeat(largestLength) + "|");
+                            } else if (i < columns.size()) {
+                                System.out.print(" ".repeat(largestLength) + "|");
                             }
                         }
                     }
@@ -105,49 +107,48 @@ public class Display {
             printStarDashPattern(columns, largestLength);
             System.out.println();
 
-
         }
     }
 
     public void showTables() {
 
-        List<String>cols = new ArrayList<>();
+        List<String> cols = new ArrayList<>();
         List<String> colums = new ArrayList<>();
         colums.add("tables");
         try {
             File file = new File("schema.txt");
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.createNewFile();
             }
             BufferedReader br = new BufferedReader(new FileReader(file));
             List<String> fileLines = br.lines().toList();
             List<String> lines = new ArrayList<>();
-            for(String line : fileLines){
-                if(!line.isBlank()){
+            for (String line : fileLines) {
+                if (!line.isBlank()) {
                     lines.add(line);
                 }
             }
 
-            if(lines.size()>0){
-                for(int i = 0 ; i<lines.size()-2;i+=3){
+            if (lines.size() > 0) {
+                for (int i = 0; i < lines.size() - 2; i += 3) {
                     cols.add(lines.get(i));
                 }
             }
-        br.close();
+            br.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
         int largestLength = 6;
-        for(String str : cols){
-            largestLength = Math.max(str.length(),largestLength);
+        for (String str : cols) {
+            largestLength = Math.max(str.length(), largestLength);
         }
-        printStarDashPattern(colums,largestLength);
+        printStarDashPattern(colums, largestLength);
         System.out.println();
-        System.out.println("| Tables" +  " ".repeat(largestLength - 6)+" |" );
-        printStarDashPattern(colums,largestLength);
+        System.out.println("| Tables" + " ".repeat(largestLength - 6) + " |");
+        printStarDashPattern(colums, largestLength);
         System.out.println();
-        if(cols.size()>0) {
+        if (cols.size() > 0) {
             for (String col : cols) {
                 System.out.print("| " + col + " ".repeat(largestLength - col.length()) + " |");
                 System.out.println();

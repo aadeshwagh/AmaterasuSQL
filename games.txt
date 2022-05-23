@@ -1,0 +1,4 @@
+rating,name
+INT,VARCHAR
+4,aadesh
+5,shivani

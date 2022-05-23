@@ -9,6 +9,8 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.DescribeStatement;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.alter.AlterExpression;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -22,7 +24,6 @@ import net.sf.jsqlparser.statement.update.UpdateSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 public class ResolveQuery {
     StorageEngine storageEngine;
 
@@ -30,14 +31,14 @@ public class ResolveQuery {
         this.storageEngine = new StorageEngine();
     }
 
-    public Map<String , String> resolveDescribeTable(String query){
-     Map<String,String> map = new HashMap<>();
-     String tableName =  query.split(" ")[1].replace(";","").trim();
-     Table table = storageEngine.getTable(tableName);
-    for(String col : table.getColumns().keySet()){
-        map.put(col, table.getColumns().get(col).name());
-    }
-    return map;
+    public Map<String, String> resolveDescribeTable(String query) {
+        Map<String, String> map = new HashMap<>();
+        String tableName = query.split(" ")[1].replace(";", "").trim();
+        Table table = storageEngine.getTable(tableName);
+        for (String col : table.getColumns().keySet()) {
+            map.put(col, table.getColumns().get(col).name());
+        }
+        return map;
     }
 
     public Table resolveSelectStatement(String query) {
@@ -55,7 +56,8 @@ public class ResolveQuery {
         for (int i = 0; i < pl.getSelectItems().size(); i++) {
             String name = pl.getSelectItems().get(i).toString();
             if (!name.equals("*") && !table.getColumns().containsKey(name)) {
-                throw new ColumnNotFoundException("no Column with name " + name + " is present in " + table.getTableName());
+                throw new ColumnNotFoundException(
+                        "no Column with name " + name + " is present in " + table.getTableName());
             }
             items[i] = name;
         }
@@ -66,7 +68,8 @@ public class ResolveQuery {
 
             String column = pl.getWhere().toString().split("=")[0].trim();
             if (!table.getColumns().containsKey(column)) {
-                throw new ColumnNotFoundException("no Column with name " + column + " is present in " + table.getTableName());
+                throw new ColumnNotFoundException(
+                        "no Column with name " + column + " is present in " + table.getTableName());
             }
             String val = (pl.getWhere().toString().split("=")[1].trim());
             try {
@@ -78,7 +81,6 @@ public class ResolveQuery {
 
         }
         return table;
-
 
     }
 
@@ -93,8 +95,8 @@ public class ResolveQuery {
         String tableName = dropStatement.getName().getName();
         Table table = storageEngine.getTable(tableName);
         storageEngine.deleteTable(table);
-        Map<String ,Schema> schema = storageEngine.getSchema();
-        storageEngine.deleteSchema(tableName,schema);
+        Map<String, Schema> schema = storageEngine.getSchema();
+        storageEngine.deleteSchema(tableName, schema);
 
         return "table " + tableName + " deleted Successfully";
     }
@@ -120,13 +122,12 @@ public class ResolveQuery {
         table.setColumns(map);
         storageEngine.createTable(table);
 
-        Map<String,Schema> schema = storageEngine.getSchema();
+        Map<String, Schema> schema = storageEngine.getSchema();
         Schema obj = new Schema();
         obj.setColumns(map.keySet().stream().toList());
         obj.setDataTypes(dataType);
-        schema.put(table.getTableName(),obj);
+        schema.put(table.getTableName(), obj);
         storageEngine.saveSchemaFile(schema);
-
 
         return "Table successfully created";
     }
@@ -168,9 +169,7 @@ public class ResolveQuery {
                 val[i] = value;
             }
 
-
         }
-
 
         if (updateStatement.getWhere() != null) {
             String conditionColumn = updateStatement.getWhere().toString().split("=")[0].trim();
@@ -187,7 +186,6 @@ public class ResolveQuery {
 
         }
 
-
         return "update successful";
     }
 
@@ -201,12 +199,11 @@ public class ResolveQuery {
         Insert insertStatement = (Insert) statement;
         List<Column> columns = insertStatement.getColumns();
         ItemsList itemsList = insertStatement.getItemsList();
-        String temp = itemsList.toString().replace("(","");
-        String item = temp.replace(")","");
+        String temp = itemsList.toString().replace("(", "");
+        String item = temp.replace(")", "");
         List<String> values = new ArrayList<>(Arrays.asList(item.split(",")));
 
-
-        if (columns.size() != values.size()  ) {
+        if (columns.size() != values.size()) {
             throw new ColumnNotFoundException("number of values and columns should match");
         }
 
@@ -231,21 +228,21 @@ public class ResolveQuery {
                 val[i] = value;
             }
 
-
         }
         List<String> originalColumns = table.getColumns().keySet().stream().toList();
         Object[] finalValues = new Object[table.getColumns().size()];
-        for(int i = 0 ; i< cols.length;i++){
+        for (int i = 0; i < cols.length; i++) {
             finalValues[originalColumns.indexOf(cols[i])] = val[i];
 
         }
 
-        storageEngine.insertRow(table,finalValues);
+        storageEngine.insertRow(table, finalValues);
 
         return "inserted successfully";
 
     }
-    public String resolveDeleteQuery(String query){
+
+    public String resolveDeleteQuery(String query) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(query);
@@ -255,22 +252,48 @@ public class ResolveQuery {
         Delete deleteStatement = (Delete) statement;
         Table table = storageEngine.getTable(deleteStatement.getTable().getName());
         if (deleteStatement.getWhere() == null) {
-            storageEngine.deleteRows(table,null, null);
+            storageEngine.deleteRows(table, null, null);
         } else {
 
             String column = deleteStatement.getWhere().toString().split("=")[0].trim();
             if (!table.getColumns().containsKey(column)) {
-                throw new ColumnNotFoundException("no Column with name " + column + " is present in " + table.getTableName());
+                throw new ColumnNotFoundException(
+                        "no Column with name " + column + " is present in " + table.getTableName());
             }
             String val = (deleteStatement.getWhere().toString().split("=")[1].trim());
             try {
                 int i = Integer.parseInt(val);
                 storageEngine.deleteRows(table, column, i);
             } catch (NumberFormatException nfe) {
-                storageEngine.deleteRows(table,column, val);
+                storageEngine.deleteRows(table, column, val);
             }
 
         }
         return "deleted successfully";
+    }
+
+    public String resolveAlterQuery(String query) {
+        Statement statement = null;
+        try {
+            statement = CCJSqlParserUtil.parse(query);
+        } catch (JSQLParserException e) {
+            throw new SyntaxErrorException(e.getMessage());
+        }
+
+        Alter alterStatement = (Alter) statement;
+        Table table = storageEngine.getTable(alterStatement.getTable().getName());
+        List<AlterExpression> alterExpressions = alterStatement.getAlterExpressions();
+        if (alterExpressions.get(0).getOperation().toString().equals("ADD")) {
+            String column = alterExpressions.get(0).getColDataTypeList().get(0).getColumnName();
+            Enum<DataType> type = DataType
+                    .valueOf(alterExpressions.get(0).getColDataTypeList().get(0).getColDataType().toString());
+            storageEngine.alterTable(table, column, type);
+        } else {
+            String column = alterExpressions.get(0).getColumnName();
+            storageEngine.alterTable(table, column, null);
+        }
+
+        return "Alter susccessfully";
+
     }
 }

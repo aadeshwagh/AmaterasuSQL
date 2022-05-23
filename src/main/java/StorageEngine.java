@@ -9,59 +9,60 @@ public class StorageEngine {
     private BufferedReader br;
     private BufferedWriter bw;
 
-    public void createTable(Table table){
+    public void createTable(Table table) {
 
-            File file = new File(table.getTableName()+".txt");
-            if(file.exists()){
-                throw new TableAlreadyExistException("table with name "+table.getTableName()+" already exists");
-            }
-            saveTable(table);
+        File file = new File(table.getTableName() + ".txt");
+        if (file.exists()) {
+            throw new TableAlreadyExistException("table with name " + table.getTableName() + " already exists");
+        }
+        saveTable(table);
 
     }
-    public void saveTable(Table table){
+
+    public void saveTable(Table table) {
         try {
             deleteTable(table);
-            File file = new File(table.getTableName()+".txt");
-            bw = new BufferedWriter(new FileWriter(file,true));
+            File file = new File(table.getTableName() + ".txt");
+            bw = new BufferedWriter(new FileWriter(file, true));
             int i = 0;
-            for(String cName: table.getColumns().keySet()){
-                if(i == table.getColumns().size()-1){
+            for (String cName : table.getColumns().keySet()) {
+                if (i == table.getColumns().size() - 1) {
                     bw.write(cName);
-                }else{
-                    bw.write(cName+",");
+                } else {
+                    bw.write(cName + ",");
                     i++;
                 }
 
             }
             bw.newLine();
-            int k=0;
-            for(Enum<DataType> type: table.getColumns().values()){
-                if(k == table.getColumns().size()-1){
+            int k = 0;
+            for (Enum<DataType> type : table.getColumns().values()) {
+                if (k == table.getColumns().size() - 1) {
                     bw.write(String.valueOf(type));
-                }else{
-                    bw.write(type+",");
+                } else {
+                    bw.write(type + ",");
                     k++;
                 }
 
             }
             bw.newLine();
 
-            if(table.getData()!=null){
-                for(Object [] obj : table.getData()){
+            if (table.getData() != null) {
+                for (Object[] obj : table.getData()) {
                     int j = 0;
-                    for(Object obj1 : obj){
-                        if(j == obj.length -1){
-                            if(obj1==null){
+                    for (Object obj1 : obj) {
+                        if (j == obj.length - 1) {
+                            if (obj1 == null) {
                                 bw.write("null");
-                            }else{
+                            } else {
                                 bw.write(obj1.toString());
                             }
 
-                        }else{
-                            if(obj1==null){
-                                bw.write("null"+",");
-                            }else{
-                                bw.write(obj1.toString()+",");
+                        } else {
+                            if (obj1 == null) {
+                                bw.write("null" + ",");
+                            } else {
+                                bw.write(obj1.toString() + ",");
                             }
                             j++;
                         }
@@ -76,72 +77,72 @@ public class StorageEngine {
             System.out.println(e.getMessage());
         }
     }
-    public void insertRow(Table table , Object[] list){
+
+    public void insertRow(Table table, Object[] list) {
         List<Object[]> data = table.getData();
         data.add(list);
         table.setData(data);
         saveTable(table);
 
     }
-    //insert into table by column names
-    public void deleteTable(Table table){
-        File f = new File(table.getTableName()+".txt");
-        if(f.exists()){
-           f.delete();
-        }
 
-
-    }
-    public void deleteSchemaFile(){
-        File f = new File("schema.txt");
-        if(f.exists()){
+    // insert into table by column names
+    public void deleteTable(Table table) {
+        File f = new File(table.getTableName() + ".txt");
+        if (f.exists()) {
             f.delete();
         }
 
+    }
+
+    public void deleteSchemaFile() {
+        File f = new File("schema.txt");
+        if (f.exists()) {
+            f.delete();
+        }
 
     }
-    public Table getTable(String tableName){
-        File file = new File(tableName+".txt");
-        if(!file.exists()){
-            throw new TableNotFoundException("Table with name "+tableName+" Does not Exist");
+
+    public Table getTable(String tableName) {
+        File file = new File(tableName + ".txt");
+        if (!file.exists()) {
+            throw new TableNotFoundException("Table with name " + tableName + " Does not Exist");
         }
         try {
             br = new BufferedReader(new FileReader(file));
 
-            List<String> cNames =new ArrayList<>();
+            List<String> cNames = new ArrayList<>();
             List<Enum<DataType>> types = new ArrayList<>();
             List<String[]> tempData = new ArrayList<>();
             int lineNo = 0;
             String line;
-            while( (line=br.readLine())!=null){
-                if(lineNo==0){
+            while ((line = br.readLine()) != null) {
+                if (lineNo == 0) {
                     Collections.addAll(cNames, line.split(","));
-                }
-                else if(lineNo==1) {
+                } else if (lineNo == 1) {
                     for (String s : line.split(",")) {
                         types.add(DataType.valueOf(s));
                     }
-                }
-                else{
+                } else {
                     tempData.add(line.split(","));
 
                 }
                 lineNo++;
             }
-            Map<String,Enum<DataType>> map = new HashMap<>();
-            for(int i = 0 ; i<cNames.size();i++){
-                map.put(cNames.get(i),types.get(i));
+            Map<String, Enum<DataType>> map = new HashMap<>();
+            for (int i = 0; i < cNames.size(); i++) {
+                map.put(cNames.get(i), types.get(i));
             }
             List<Object[]> data = new ArrayList<>();
-            for(String [] str: tempData){
+            for (String[] str : tempData) {
                 Object[] obj = new Object[str.length];
-                for(int i = 0 ;i< str.length ;i++){
-                    if(str[i].equals("null")){
+                for (int i = 0; i < str.length; i++) {
+                    if (str[i].equals("null")) {
                         obj[i] = null;
-                    }else{
-                        if(map.get(cNames.get(i)).equals(DataType.INT)){
+                    } else {
+                        if (map.get(cNames.get(i)).equals(DataType.INT)) {
                             obj[i] = Integer.parseInt(str[i]);
-                        }else{
+                        } else {
                             obj[i] = str[i];
                         }
                     }
@@ -158,50 +159,53 @@ public class StorageEngine {
             return table;
 
         } catch (IOException e) {
-           System.out.println(e.getMessage());
-   }
+            System.out.println(e.getMessage());
+        }
 
         return null;
     }
-    public Table getRows(Table table , String []column,String conditionColumn , Object ConditionValue ){
-        if(table.getData().size()==0){
+
+    public Table getRows(Table table, String[] column, String conditionColumn, Object ConditionValue) {
+        if (table.getData().size() == 0) {
             return table;
         }
-        if(column.length==1 && column[0].equals("*")){
-            if(conditionColumn != null && ConditionValue!=null){
+        if (column.length == 1 && column[0].equals("*")) {
+            if (conditionColumn != null && ConditionValue != null) {
                 int index = table.getColumns().keySet().stream().toList().indexOf(conditionColumn);
-                table.setData(table.getData().stream().filter(object -> (object[index].equals(ConditionValue))).collect(Collectors.toList()));
+                table.setData(table.getData().stream().filter(object -> (object[index].equals(ConditionValue)))
+                        .collect(Collectors.toList()));
             }
             return table;
 
         }
-        if(conditionColumn != null && ConditionValue!=null){
+        if (conditionColumn != null && ConditionValue != null) {
             int index = table.getColumns().keySet().stream().toList().indexOf(conditionColumn);
-            List<Object[]> newData = table.getData().stream().filter(object -> (object[index].equals(ConditionValue))).toList();
-            Map<String,Enum<DataType>> newColumns = new HashMap<>();
-              List<Object[]> tempData = new ArrayList<>();
-            for(String s : column) {
+            List<Object[]> newData = table.getData().stream().filter(object -> (object[index].equals(ConditionValue)))
+                    .toList();
+            Map<String, Enum<DataType>> newColumns = new HashMap<>();
+            List<Object[]> tempData = new ArrayList<>();
+            for (String s : column) {
                 newColumns.put(s, table.getColumns().get(s));
             }
-                for(Object[] o : newData){
-                    Object []temp = new Object[o.length];
-                    for(String s : column){
-                        int index1 = table.getColumns().keySet().stream().toList().indexOf(s);
-                        temp[index1] = o[index1];
+            for (Object[] o : newData) {
+                Object[] temp = new Object[o.length];
+                for (String s : column) {
+                    int index1 = table.getColumns().keySet().stream().toList().indexOf(s);
+                    temp[index1] = o[index1];
                 }
-                    tempData.add(temp);
+                tempData.add(temp);
             }
             table.setData(tempData);
             table.setColumns(newColumns);
             return table;
 
         }
-        Map<String,Enum<DataType>> newColumns = new HashMap<>();
+        Map<String, Enum<DataType>> newColumns = new HashMap<>();
         List<Object[]> tempData = new ArrayList<>();
-        for(Object[] o : table.getData()){
-            Object []temp = new Object[o.length];
-            for(String s : column){
-                newColumns.put(s,table.getColumns().get(s));
+        for (Object[] o : table.getData()) {
+            Object[] temp = new Object[o.length];
+            for (String s : column) {
+                newColumns.put(s, table.getColumns().get(s));
                 int index1 = table.getColumns().keySet().stream().toList().indexOf(s);
                 temp[index1] = o[index1];
             }
@@ -211,14 +215,14 @@ public class StorageEngine {
         table.setColumns(newColumns);
         return table;
 
-
     }
-    public void deleteRows(Table table , String column , Object value){
+
+    public void deleteRows(Table table, String column, Object value) {
         List<Object[]> data = table.getData();
-        if(column==null && value==null){
+        if (column == null && value == null) {
             data.clear();
             table.setData(data);
-        }else{
+        } else {
             int index = table.getColumns().keySet().stream().toList().indexOf(column);
             data.removeAll(table.getData().stream().filter(object -> (object[index].equals(value))).toList());
             table.setData(data);
@@ -226,23 +230,26 @@ public class StorageEngine {
         saveTable(table);
 
     }
-    public void updateRows(Table table,String[] column , Object[] value ,String conditionColumn ,Object conditionValue ){
+
+    public void updateRows(Table table, String[] column, Object[] value, String conditionColumn,
+            Object conditionValue) {
         List<Object[]> originalData = table.getData();
-        if(conditionColumn !=null && conditionValue!=null){
+        if (conditionColumn != null && conditionValue != null) {
             int index = table.getColumns().keySet().stream().toList().indexOf(conditionColumn);
-            List<Object[]> data = table.getData().stream().filter(object -> (object[index].equals(conditionValue))).toList();
+            List<Object[]> data = table.getData().stream().filter(object -> (object[index].equals(conditionValue)))
+                    .toList();
             originalData.removeAll(data);
-            for(Object []o : data){
-                for(int i = 0 ; i< column.length ;i++){
+            for (Object[] o : data) {
+                for (int i = 0; i < column.length; i++) {
                     int index1 = table.getColumns().keySet().stream().toList().indexOf(column[i]);
                     o[index1] = value[i];
                 }
 
             }
             originalData.addAll(data);
-        }else{
-            for(Object []o : originalData){
-                for(int i = 0 ; i< column.length ;i++){
+        } else {
+            for (Object[] o : originalData) {
+                for (int i = 0; i < column.length; i++) {
                     int index1 = table.getColumns().keySet().stream().toList().indexOf(column[i]);
                     o[index1] = value[i];
                 }
@@ -252,30 +259,31 @@ public class StorageEngine {
         table.setData(originalData);
         saveTable(table);
     }
-    public void saveSchemaFile(Map<String,Schema> map){
+
+    public void saveSchemaFile(Map<String, Schema> map) {
         try {
             deleteSchemaFile();
             bw = new BufferedWriter(new FileWriter("schema.txt", true));
-            for(String tableName : map.keySet()){
+            for (String tableName : map.keySet()) {
                 bw.write(tableName);
                 bw.newLine();
                 int i = 0;
-                for(String cName: map.get(tableName).getColumns()){
-                    if(i == map.get(tableName).getColumns().size()-1){
+                for (String cName : map.get(tableName).getColumns()) {
+                    if (i == map.get(tableName).getColumns().size() - 1) {
                         bw.write(cName);
-                    }else{
-                        bw.write(cName+",");
+                    } else {
+                        bw.write(cName + ",");
                         i++;
                     }
 
                 }
                 bw.newLine();
-                int k=0;
-                for(String type: map.get(tableName).getDataTypes()){
-                    if(k == map.get(tableName).getDataTypes().size()-1){
+                int k = 0;
+                for (String type : map.get(tableName).getDataTypes()) {
+                    if (k == map.get(tableName).getDataTypes().size() - 1) {
                         bw.write(type);
-                    }else{
-                        bw.write(type+",");
+                    } else {
+                        bw.write(type + ",");
                         k++;
                     }
 
@@ -286,16 +294,16 @@ public class StorageEngine {
 
             bw.flush();
             bw.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-
     }
-    public Map<String,Schema> getSchema(){
-        Map<String ,Schema> map = new HashMap<>();
+
+    public Map<String, Schema> getSchema() {
+        Map<String, Schema> map = new HashMap<>();
         File file = new File("schema.txt");
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -306,12 +314,12 @@ public class StorageEngine {
             br = new BufferedReader(new FileReader(file));
             List<String> fileLines = br.lines().toList();
             List<String> lines = new ArrayList<>();
-            for(String s : fileLines){
-                if(!s.isBlank()){
+            for (String s : fileLines) {
+                if (!s.isBlank()) {
                     lines.add(s);
                 }
             }
-            if(lines.size() > 0) {
+            if (lines.size() > 0) {
                 for (int i = 0; i < lines.size() - 2; i += 3) {
                     Schema o = new Schema();
                     String name = lines.get(i);
@@ -319,14 +327,14 @@ public class StorageEngine {
                     o.setColumns(cNames);
                     List<String> types = new ArrayList<>(Arrays.stream(lines.get(i + 2).split(",")).toList());
                     o.setDataTypes(types);
-                    map.put(name,o);
+                    map.put(name, o);
 
                 }
             }
 
             br.close();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
@@ -334,15 +342,54 @@ public class StorageEngine {
 
     }
 
-    public void deleteSchema(String tableName , Map<String, Schema> map){
-       map.remove(tableName);
-       saveSchemaFile(map);
+    public void deleteSchema(String tableName, Map<String, Schema> map) {
+        map.remove(tableName);
+        saveSchemaFile(map);
 
     }
 
-    public void alterTable(Table table,String column , Enum<DataType> type){
-        //Alter table table_name
-    }
+    public void alterTable(Table table, String column, Enum<DataType> type) {
 
+        // Alter table table_name drop column column_name
+        // Alter table table_name add column column_name dataType
+        if (table.getColumns().keySet().contains(column)) {
+            // delete that column and all entries in it
+            Map<String, Enum<DataType>> map = table.getColumns();
+            int index = table.getColumns().keySet().stream().toList().indexOf(column);
+            map.remove(column);
+
+            List<Object[]> res = new ArrayList<>();
+            for (Object[] obj : table.getData()) {
+                List<Object> list = new ArrayList<>();
+                for (int i = 0; i < obj.length; i++) {
+                    if (i != index) {
+                        list.add(obj[i]);
+                    }
+                }
+                res.add(list.toArray(new Object[0]));
+            }
+            table.setColumns(map);
+            table.setData(res);
+        } else {
+            // add new column to table and put null in that column for all older entries
+            Map<String, Enum<DataType>> map = table.getColumns();
+            map.put(column, type);
+            table.setColumns(map);
+            int index = table.getColumns().keySet().stream().toList().indexOf(column);
+            List<Object[]> data = table.getData();
+            List<Object[]> res = new ArrayList<>();
+
+            for (Object[] obj : data) {
+                Object[] temp = new Object[obj.length + 1];
+                for (int i = 0; i < obj.length; i++) {
+                    temp[i] = obj[i];
+                }
+                temp[index] = null;
+                res.add(temp);
+            }
+            table.setData(res);
+        }
+        saveTable(table);
+    }
 
 }
