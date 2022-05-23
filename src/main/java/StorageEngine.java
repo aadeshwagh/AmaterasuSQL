@@ -335,13 +335,10 @@ public class StorageEngine {
        saveSchemaFile(map);
 
     }
-//    public void updateTableColumns(Table table , Map<String,Object> values){
-//
-//    }
-//    public void updateTableColumnsInRow(Table table , Map<String,Object> values,Object id){
-//
-//    }
 
+    public void alterTable(Table table,String column , Enum<DataType> type){
+
+    }
 
 
 }

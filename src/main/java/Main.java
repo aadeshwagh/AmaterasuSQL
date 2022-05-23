@@ -7,6 +7,7 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.show.ShowTablesStatement;
 import net.sf.jsqlparser.statement.update.Update;
 
 public class Main {
@@ -44,9 +45,11 @@ public class Main {
                System.out.println(resolveQuery.resolveDeleteQuery(query));
            }else if(statement.getClass().equals(DescribeStatement.class)) {
                display.describeTable(resolveQuery.resolveDescribeTable(query));
+           }else if(statement.getClass().equals(ShowTablesStatement.class)){
+               display.showTables();
            }
        }catch (Exception e){
-           System.out.println(e.getMessage());
+           e.printStackTrace();
        }
 
     }

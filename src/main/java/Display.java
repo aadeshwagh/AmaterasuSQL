@@ -1,18 +1,27 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Display {
     public void printStarDashPattern(List<String> columns , int largestLength){
-        for (int i = 0 ; i<columns.size();i++) {
-            if(i==0){
-                System.out.print("+" + "-".repeat(largestLength+2));
-            }else if(i<columns.size()-1){
-                System.out.print("+" + "-".repeat(largestLength+1));
-            }else{
-                System.out.print("+" + "-".repeat(largestLength+1)+"+");
-            }
+        if(columns.size()==1){
+            System.out.print("+" + "-".repeat(largestLength+2)+"+");
+        }else{
+            for (int i = 0 ; i<columns.size();i++) {
+                if(i==0){
+                    System.out.print("+" + "-".repeat(largestLength+2));
+                }else if(i<columns.size()-1){
+                    System.out.print("+" + "-".repeat(largestLength+1));
+                }else{
+                    System.out.print("+" + "-".repeat(largestLength+1)+"+");
+                }
 
+            }
         }
+
     }
 
     public void describeTable( Map<String, String> map ){
@@ -39,7 +48,10 @@ public class Display {
     public void displayData(Table table) {
         List<String> columns = new ArrayList<>(table.getColumns().keySet());
         List<Object[]> data = table.getData();
-        int largestLength = Collections.max(columns).length();
+        int largestLength = Integer.MIN_VALUE;
+        for(String str : columns){
+            largestLength = Math.max(str.length(),largestLength);
+        }
         if (data.size()>0) {
             for (Object[] objs : data) {
                 for (Object o : objs) {
@@ -100,4 +112,45 @@ public class Display {
         }
     }
 
+    public void showTables() {
+        List<String>cols = new ArrayList<>();
+        List<String> colums = new ArrayList<>();
+        colums.add("tables");
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("schema.txt"));
+            List<String> fileLines = br.lines().toList();
+            List<String> lines = new ArrayList<>();
+            for(String line : fileLines){
+                if(!line.isBlank()){
+                    lines.add(line);
+                }
+            }
+
+            if(lines.size()>0){
+                for(int i = 0 ; i<lines.size()-2;i+=3){
+                    cols.add(lines.get(i));
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        int largestLength = Integer.MIN_VALUE;
+        for(String str : cols){
+            largestLength = Math.max(str.length(),largestLength);
+        }
+        printStarDashPattern(colums,largestLength);
+        System.out.println();
+        System.out.println("| Tables" +  " ".repeat(largestLength - 6)+" |" );
+        printStarDashPattern(colums,largestLength);
+        System.out.println();
+        for(int i = 0 ; i<cols.size();i++){
+            System.out.print("| " + cols.get(i) + " ".repeat(largestLength - cols.get(i).length())+" |" );
+            System.out.println();
+
+        }
+        printStarDashPattern(colums,largestLength);
+        System.out.println();
+    }
 }

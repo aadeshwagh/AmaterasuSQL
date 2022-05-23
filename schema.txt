@@ -1,3 +1,12 @@
 student
 name,marks,age
 INT,VARCHAR
+cat
+name,marks,age
+INT,VARCHAR
+dog
+name,marks,age
+INT,VARCHAR
+This_is_my_table
+name,marks,age
+INT,VARCHAR
