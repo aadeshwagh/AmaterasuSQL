@@ -1,9 +1,6 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 public class Display {
     public void printStarDashPattern(List<String> columns , int largestLength){
@@ -86,7 +83,7 @@ public class Display {
                         if (i == 0) {
                             System.out.print("| " + o[i] + " ".repeat(largestLength - o[i].toString().length()) + " | ");
                         } else {
-                            System.out.print(o[i] + " ".repeat(largestLength - o[i].toString().length()) + "| ");
+                            System.out.print(o[i] + " ".repeat(largestLength - o[i].toString().length()) + "|");
                         }
                     } else {
                         if (columns.size() != o.length) {
@@ -97,7 +94,7 @@ public class Display {
                             if (i == 0) {
                                 System.out.print("| " + " ".repeat(largestLength) + " | ");
                             } else if (i < columns.size() - 1) {
-                                System.out.print(" ".repeat(largestLength) + "| ");
+                                System.out.print(" ".repeat(largestLength) + " |");
                             }
                         }
                     }
@@ -113,11 +110,16 @@ public class Display {
     }
 
     public void showTables() {
+
         List<String>cols = new ArrayList<>();
         List<String> colums = new ArrayList<>();
         colums.add("tables");
         try {
-            BufferedReader br = new BufferedReader(new FileReader("schema.txt"));
+            File file = new File("schema.txt");
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            BufferedReader br = new BufferedReader(new FileReader(file));
             List<String> fileLines = br.lines().toList();
             List<String> lines = new ArrayList<>();
             for(String line : fileLines){
@@ -131,12 +133,12 @@ public class Display {
                     cols.add(lines.get(i));
                 }
             }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        br.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
 
-        int largestLength = Integer.MIN_VALUE;
+        int largestLength = 6;
         for(String str : cols){
             largestLength = Math.max(str.length(),largestLength);
         }
@@ -145,12 +147,15 @@ public class Display {
         System.out.println("| Tables" +  " ".repeat(largestLength - 6)+" |" );
         printStarDashPattern(colums,largestLength);
         System.out.println();
-        for(int i = 0 ; i<cols.size();i++){
-            System.out.print("| " + cols.get(i) + " ".repeat(largestLength - cols.get(i).length())+" |" );
-            System.out.println();
+        if(cols.size()>0) {
+            for (String col : cols) {
+                System.out.print("| " + col + " ".repeat(largestLength - col.length()) + " |");
+                System.out.println();
 
+            }
+
+            printStarDashPattern(colums, largestLength);
+            System.out.println();
         }
-        printStarDashPattern(colums,largestLength);
-        System.out.println();
     }
 }

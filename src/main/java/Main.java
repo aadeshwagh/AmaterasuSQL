@@ -1,4 +1,5 @@
 import exception.SyntaxErrorException;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.DescribeStatement;
 import net.sf.jsqlparser.statement.Statement;
@@ -48,8 +49,13 @@ public class Main {
            }else if(statement.getClass().equals(ShowTablesStatement.class)){
                display.showTables();
            }
-       }catch (Exception e){
-           e.printStackTrace();
+       }catch ( Exception  e){
+           if(e.getClass().equals(JSQLParserException.class)){
+               System.out.println("Unexpected token in query");
+           }else{
+               System.out.println(e.getMessage());
+           }
+
        }
 
     }

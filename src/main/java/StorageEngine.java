@@ -73,7 +73,7 @@ public class StorageEngine {
             bw.flush();
             bw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
     public void insertRow(Table table , Object[] list){
@@ -158,7 +158,7 @@ public class StorageEngine {
             return table;
 
         } catch (IOException e) {
-           e.printStackTrace();
+           System.out.println(e.getMessage());
    }
 
         return null;
@@ -287,7 +287,7 @@ public class StorageEngine {
             bw.flush();
             bw.close();
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
 
@@ -296,7 +296,11 @@ public class StorageEngine {
         Map<String ,Schema> map = new HashMap<>();
         File file = new File("schema.txt");
         if(!file.exists()){
-            throw new TableNotFoundException("schema.txt file Does not Exist");
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
         try {
             br = new BufferedReader(new FileReader(file));
@@ -323,7 +327,7 @@ public class StorageEngine {
             br.close();
 
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return map;
@@ -337,7 +341,7 @@ public class StorageEngine {
     }
 
     public void alterTable(Table table,String column , Enum<DataType> type){
-
+        //Alter table table_name
     }
 
 
