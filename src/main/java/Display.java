@@ -1,5 +1,11 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class Display {
     public void printStarDashPattern(List<String> columns, int largestLength) {
@@ -158,5 +164,23 @@ public class Display {
             printStarDashPattern(colums, largestLength);
             System.out.println();
         }
+    }
+
+    public void help() {
+        System.out.println("Avalabel queries");
+        System.out.println("1) SHOW TABLES;\n" +
+                "2) DESCRIBE table_name;\n" +
+                "3) CREATE TABLE table_name (column1 datatype,column2 datatype,column3 datatype,....);\n" +
+                "4) DROP TABLE table_name\n" +
+                "5) SELECT * FROM table_name;\n" +
+                "6) SELECT column1, column2, ... FROM table_name;\n" +
+                "7) SELECT * FROM table_name where condition;\n" +
+                "8) INSERT INTO table_name (column1, column2, column3, ...)VALUES (value1, value2, value3, ...);\n" +
+                "9) UPDATE table_name SET column1 = value1, column2 = value2;\n" +
+                "10) UPDATE table_name SET column1 = value1, column2 = value2, ...WHERE condition;\n" +
+                "11) DELETE FROM table_name;\n" +
+                "12) DELETE FROM table_name WHERE condition;\n" +
+                "13) ALTER TABLE table_name ADD column_name datatype;\n" +
+                "14) ALTER TABLE table_name DROP column_name;");
     }
 }

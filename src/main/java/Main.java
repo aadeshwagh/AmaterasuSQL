@@ -28,38 +28,42 @@ public class Main {
     }
 
     public void evaluateStatement(String query) {
-        try {
-            checkSyntaxError(query);
-            Statement statement = null;
+        if (query.equals("help")) {
+            display.help();
+        } else {
+            try {
+                checkSyntaxError(query);
+                Statement statement = null;
 
-            statement = CCJSqlParserUtil.parse(query);
+                statement = CCJSqlParserUtil.parse(query);
 
-            if (statement.getClass().equals(Select.class)) {
-                display.displayData(resolveQuery.resolveSelectStatement(query));
-            } else if (statement.getClass().equals(CreateTable.class)) {
-                System.out.println(resolveQuery.resolveCreateStatement(query));
-            } else if (statement.getClass().equals(Update.class)) {
-                System.out.println(resolveQuery.resolveUpdateStatement(query));
-            } else if (statement.getClass().equals(Drop.class)) {
-                System.out.println(resolveQuery.resolveDropStatement(query));
-            } else if (statement.getClass().equals(Insert.class)) {
-                System.out.println(resolveQuery.resolveInsertStatement(query));
-            } else if (statement.getClass().equals(Delete.class)) {
-                System.out.println(resolveQuery.resolveDeleteQuery(query));
-            } else if (statement.getClass().equals(DescribeStatement.class)) {
-                display.describeTable(resolveQuery.resolveDescribeTable(query));
-            } else if (statement.getClass().equals(ShowTablesStatement.class)) {
-                display.showTables();
-            } else if (statement.getClass().equals(Alter.class)) {
-                System.out.println(resolveQuery.resolveAlterQuery(query));
+                if (statement.getClass().equals(Select.class)) {
+                    display.displayData(resolveQuery.resolveSelectStatement(query));
+                } else if (statement.getClass().equals(CreateTable.class)) {
+                    System.out.println(resolveQuery.resolveCreateStatement(query));
+                } else if (statement.getClass().equals(Update.class)) {
+                    System.out.println(resolveQuery.resolveUpdateStatement(query));
+                } else if (statement.getClass().equals(Drop.class)) {
+                    System.out.println(resolveQuery.resolveDropStatement(query));
+                } else if (statement.getClass().equals(Insert.class)) {
+                    System.out.println(resolveQuery.resolveInsertStatement(query));
+                } else if (statement.getClass().equals(Delete.class)) {
+                    System.out.println(resolveQuery.resolveDeleteQuery(query));
+                } else if (statement.getClass().equals(DescribeStatement.class)) {
+                    display.describeTable(resolveQuery.resolveDescribeTable(query));
+                } else if (statement.getClass().equals(ShowTablesStatement.class)) {
+                    display.showTables();
+                } else if (statement.getClass().equals(Alter.class)) {
+                    System.out.println(resolveQuery.resolveAlterQuery(query));
+                }
+            } catch (Exception e) {
+                if (e.getClass().equals(JSQLParserException.class)) {
+                    System.out.println("Unexpected token in query");
+                } else {
+                    System.out.println(e.getMessage());
+                }
+
             }
-        } catch (Exception e) {
-            if (e.getClass().equals(JSQLParserException.class)) {
-                System.out.println("Unexpected token in query");
-            } else {
-                System.out.println(e.getMessage());
-            }
-
         }
 
     }
