@@ -77,10 +77,16 @@ public class Display {
                             System.out.print(o[i] + " ".repeat(largestLength - o[i].toString().length()) + "| ");
                         }
                     } else {
-                        if (i == 0) {
-                            System.out.print("| " + " ".repeat(largestLength) + " | ");
+                        if (columns.size() != o.length) {
+                            if (i == 0) {
+                                System.out.print("| ");
+                            }
                         } else {
-                            System.out.print(" ".repeat(largestLength) + "| ");
+                            if (i == 0) {
+                                System.out.print("| " + " ".repeat(largestLength) + " | ");
+                            } else if (i < columns.size() - 1) {
+                                System.out.print(" ".repeat(largestLength) + "| ");
+                            }
                         }
                     }
 

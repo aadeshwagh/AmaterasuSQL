@@ -1,0 +1,5 @@
+name,marks,age
+VARCHAR,INT,INT
+aadesh,100,21
+shantanu,100,21
+shivani,100,22
